@@ -1,0 +1,10 @@
+{
+  "name": "ELO Voice Assistant",
+  "short_name": "ELO",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#050914",
+  "theme_color": "#050914",
+  "description": "A small, calm voice assistant."
+}

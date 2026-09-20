@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#050914">
+  <meta name="description" content="ELO voice assistant">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/style.css">
+  <title>ELO</title>
+</head>
+<body>
+  <main id="app" class="app">
+    <section id="normalView" class="normal-view" aria-label="ELO assistant">
+      <div class="brand" aria-hidden="true">ELO <span>VOICE LINK</span></div>
+      <div class="orb-column">
+        <button id="orb" class="orb idle" type="button" aria-label="Press and hold to talk">
+          <span class="orb-ring"></span>
+          <span class="orb-core"><span class="orb-name">ELO</span><span id="stateLabel" class="state-label">Press and hold</span></span>
+        </button>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </div>
+      <div class="answer-column">
+        <div class="answer-heading">LAST TRANSMISSION</div>
+        <div id="answer" class="answer" aria-live="polite">Ready when you are.</div>
+        <form id="fallbackForm" class="fallback-form" hidden>
+          <label class="visually-hidden" for="fallbackInput">Type a message</label>
+          <input id="fallbackInput" type="text" maxlength="1000" autocomplete="off" placeholder="Type a message">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="ambientView" class="ambient-view" hidden aria-label="Ambient display">
+      <div class="ambient-top"><span>ELO</span><span id="ambientDate"></span></div>
+      <div class="ambient-center"><div id="ambientTime" class="ambient-time">--:--</div><div id="weather" class="weather">Weather unavailable</div></div>
+      <div class="ambient-orb" aria-hidden="true"><span>ELO</span></div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
