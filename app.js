@@ -14,14 +14,15 @@
   function stopSpeech() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
   function resetIdle() { if (idleTimer) clearTimeout(idleTimer); if (!ambientView.hidden) leaveAmbient(); idleTimer = setTimeout(enterAmbient, 60000); }
   function normalize(text) { return text.toLowerCase().replace(/[.,!?]/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function wakeCommand(spoken) { var match = spoken.match(/\bhey\s+(elo|eleo|elio|elow)\b/); return match ? { index: match.index, length: match[0].length } : null; }
   function setupRecognition() {
     if (!SpeechRecognition) { showFallback('Voice input is unavailable here. Type below instead.'); return; }
     recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
     recognition.onstart = function () { recognitionRunning = true; setStatus(''); setState('listening', armed ? 'Say “Hey ELO”' : 'Listening...'); setActivity('Wake word standby', true); };
     recognition.onresult = function (event) {
       var text = '', i, result; for (i = event.resultIndex; i < event.results.length; i++) { result = event.results[i]; text += result[0].transcript; }
-      var spoken = normalize(text), wakeIndex = spoken.indexOf('hey elo'); transcript = text;
-      if (!commandMode && wakeIndex !== -1) { commandMode = true; transcript = spoken.slice(wakeIndex + 7).trim(); setState('listening', 'I’m listening...'); setActivity('Wake word heard', true); stopSpeech(); if (transcript) finishCommand(transcript); else { setStatus('Go ahead.'); commandTimer = setTimeout(function () { commandMode = false; setState('listening', 'Say “Hey ELO”'); setActivity('Wake word standby', true); }, 7000); } }
+      var spoken = normalize(text), wake = wakeCommand(spoken); transcript = text;
+      if (!commandMode && wake) { commandMode = true; transcript = spoken.slice(wake.index + wake.length).trim(); setState('listening', 'I’m listening...'); setActivity('Wake word heard', true); stopSpeech(); if (transcript) finishCommand(transcript); else { setStatus('Go ahead.'); commandTimer = setTimeout(function () { commandMode = false; setState('listening', 'Say “Hey ELO”'); setActivity('Wake word standby', true); }, 7000); } }
       else if (commandMode && spoken) { if (commandTimer) clearTimeout(commandTimer); finishCommand(spoken); }
     };
     recognition.onerror = function (event) { recognitionRunning = false; if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { armed = false; showFallback('Allow microphone access once, then ELO can listen hands-free.'); setActivity('Microphone permission needed', false); } else setStatus('I lost the signal. I’ll try again.'); };
@@ -48,6 +49,7 @@
   function weatherLabel(code) { if (code === 0) return 'Clear'; if (code < 4) return 'Partly cloudy'; if (code < 70) return 'Cloudy'; if (code < 80) return 'Rain'; if (code < 90) return 'Showers'; return 'Storm'; }
   function requestWakeLock() { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request('screen').then(function (lock) { wakeLock = lock; }).catch(function () {}); }
   orb.addEventListener('click', function () { resetIdle(); if (window.speechSynthesis && window.speechSynthesis.speaking) { stopSpeech(); setState('listening', 'Say “Hey ELO”'); return; } armListening(); });
+  document.addEventListener('pointerdown', function () { if (!armed && recognition) armListening(); }, { once: true });
   form.addEventListener('submit', submitFallback); document.addEventListener('touchstart', function () { if (!ambientView.hidden) leaveAmbient(); resetIdle(); }, { passive: true }); document.addEventListener('click', resetIdle); document.addEventListener('visibilitychange', function () { if (document.hidden) { if (idleTimer) clearTimeout(idleTimer); } else { resetIdle(); if (armed) startListening(); } });
-  window.addEventListener('beforeunload', stopSpeech); setupRecognition(); resetIdle(); setTimeout(function () { if (recognition) armListening(); }, 300);
+  window.addEventListener('beforeunload', stopSpeech); setupRecognition(); resetIdle(); setStatus('Listening for “Hey ELO”...'); setTimeout(function () { if (recognition) armListening(); }, 300);
 }());
