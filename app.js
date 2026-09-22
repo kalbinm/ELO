@@ -14,17 +14,18 @@
   function stopSpeech() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
   function resetIdle() { if (idleTimer) clearTimeout(idleTimer); if (!ambientView.hidden) leaveAmbient(); idleTimer = setTimeout(enterAmbient, 60000); }
   function normalize(text) { return text.toLowerCase().replace(/[.,!?]/g, ' ').replace(/\s+/g, ' ').trim(); }
-  function wakeCommand(spoken) { var match = spoken.match(/\b(hey|okay|ok|a)\s+(elo|eleo|elio|elow|hello|yellow)\b/); return match ? { index: match.index, length: match[0].length } : null; }
+  function wakeCommand(spoken) { var match = spoken.match(/\b(hey|okay|ok|a)\s+(elo|eleo|elio|elow|hello|yellow|low|below|yellow)\b/); if (match) return { index: match.index, length: match[0].length }; var loose = spoken.match(/\bhey\s+(?:e|l|o)\b/); return loose ? { index: loose.index, length: loose[0].length } : null; }
   function setupRecognition() {
     if (!SpeechRecognition) { showFallback('Voice input is unavailable here. Type below instead.'); return; }
     recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
-    recognition.onstart = function () { recognitionRunning = true; setStatus(''); setState('listening', armed ? 'Say “Hey ELO”' : 'Listening...'); setActivity('Wake word standby', true); };
+    recognition.onstart = function () { recognitionRunning = true; setStatus('Microphone on — say “Hey ELO”'); setState('listening', armed ? 'Say “Hey ELO”' : 'Listening...'); setActivity('Wake word standby', true); };
     recognition.onresult = function (event) {
       var text = '', i, result; for (i = event.resultIndex; i < event.results.length; i++) { result = event.results[i]; text += result[0].transcript; }
       var spoken = normalize(text), wake = wakeCommand(spoken); transcript = text;
       if (!commandMode && wake) { commandMode = true; transcript = spoken.slice(wake.index + wake.length).trim(); setState('listening', 'I’m listening...'); setActivity('Wake word heard', true); stopSpeech(); if (transcript) finishCommand(transcript); else { setStatus('Go ahead.'); commandTimer = setTimeout(function () { commandMode = false; setState('listening', 'Say “Hey ELO”'); setActivity('Wake word standby', true); }, 7000); } }
       else if (commandMode && spoken) { if (commandTimer) clearTimeout(commandTimer); finishCommand(spoken); }
     };
+    recognition.onnomatch = function () { setStatus('I heard something, but not the wake word. Try “Hey ELO” again.'); };
     recognition.onerror = function (event) { recognitionRunning = false; if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { armed = false; showFallback('Allow microphone access once, then ELO can listen hands-free.'); setActivity('Microphone permission needed', false); } else setStatus('I lost the signal. I’ll try again.'); };
     recognition.onend = function () { recognitionRunning = false; if (armed && !document.hidden && !(window.speechSynthesis && window.speechSynthesis.speaking)) setTimeout(startListening, 450); };
   }
