@@ -24,7 +24,7 @@
       if (!commandMode && wakeIndex !== -1) { commandMode = true; transcript = spoken.slice(wakeIndex + 7).trim(); setState('listening', 'I’m listening...'); setActivity('Wake word heard', true); stopSpeech(); if (transcript) finishCommand(transcript); else { setStatus('Go ahead.'); commandTimer = setTimeout(function () { commandMode = false; setState('listening', 'Say “Hey ELO”'); setActivity('Wake word standby', true); }, 7000); } }
       else if (commandMode && spoken) { if (commandTimer) clearTimeout(commandTimer); finishCommand(spoken); }
     };
-    recognition.onerror = function (event) { recognitionRunning = false; if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { showFallback('Allow microphone access once, then ELO can listen hands-free.'); setActivity('Microphone permission needed', false); } else setStatus('I lost the signal. I’ll try again.'); };
+    recognition.onerror = function (event) { recognitionRunning = false; if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { armed = false; showFallback('Allow microphone access once, then ELO can listen hands-free.'); setActivity('Microphone permission needed', false); } else setStatus('I lost the signal. I’ll try again.'); };
     recognition.onend = function () { recognitionRunning = false; if (armed && !document.hidden && !(window.speechSynthesis && window.speechSynthesis.speaking)) setTimeout(startListening, 450); };
   }
   function startListening() { if (!recognition || recognitionRunning || document.hidden) return; try { recognition.start(); } catch (e) {} }
