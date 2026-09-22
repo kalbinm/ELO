@@ -14,7 +14,7 @@
   function stopSpeech() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
   function resetIdle() { if (idleTimer) clearTimeout(idleTimer); if (!ambientView.hidden) leaveAmbient(); idleTimer = setTimeout(enterAmbient, 60000); }
   function normalize(text) { return text.toLowerCase().replace(/[.,!?]/g, ' ').replace(/\s+/g, ' ').trim(); }
-  function wakeCommand(spoken) { var match = spoken.match(/\bhey\s+(elo|eleo|elio|elow)\b/); return match ? { index: match.index, length: match[0].length } : null; }
+  function wakeCommand(spoken) { var match = spoken.match(/\b(hey|okay|ok|a)\s+(elo|eleo|elio|elow|hello|yellow)\b/); return match ? { index: match.index, length: match[0].length } : null; }
   function setupRecognition() {
     if (!SpeechRecognition) { showFallback('Voice input is unavailable here. Type below instead.'); return; }
     recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
@@ -33,7 +33,8 @@
   function finishCommand(text) { commandMode = false; if (commandTimer) clearTimeout(commandTimer); setState('thinking', 'Thinking...'); setActivity('Working on it', true); setStatus(''); routeCommand(text); }
   function isSearch(text) { return /\b(search|look up|find|google)\b/i.test(text); }
   function isNews(text) { return /\b(news|latest events|current events|headlines|what happened)\b/i.test(text); }
-  function routeCommand(text) { if (isNews(text)) return fetchBrief('/api/news', text); if (isSearch(text)) return fetchBrief('/api/search', text); sendChat(text); }
+  function routeCommand(text) { if (/\b(what(?:'s| is)? the )?time\b/i.test(text)) return tellTime(); if (isNews(text)) return fetchBrief('/api/news', text); if (isSearch(text)) return fetchBrief('/api/search', text); sendChat(text); }
+  function tellTime() { var now = new Date(), reply = 'It’s ' + now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' in your local time.'; answer.textContent = reply; speak(reply); }
   function fetchBrief(endpoint, text) { answer.textContent = 'Checking the latest information...'; fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: text }) }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); }).then(function (result) { if (!result.ok) throw new Error(result.data.error || 'Search is unavailable.'); var reply = String(result.data.reply || '').trim(); answer.textContent = reply || 'I could not find a useful result.'; speak(reply || 'I could not find a useful result.'); }).catch(function (error) { answer.textContent = 'I could not reach the web right now.'; setState('idle', 'Say “Hey ELO”'); setStatus(error.message); setActivity('Wake word standby', true); }); }
   function sendChat(text) {
     messages.push({ role: 'user', content: text }); if (messages.length > 6) messages.shift(); answer.textContent = '...';
