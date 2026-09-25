@@ -21,7 +21,7 @@ module.exports = function (req, res) {
   var audio;
   try { audio = Buffer.from(encoded, 'base64'); } catch (e) { return json(res, 400, { error: 'The audio data is invalid.' }); }
   if (!audio.length || audio.length > MAX_AUDIO_BYTES) return json(res, 413, { error: 'Audio must be between 1 byte and 4 MB.' });
-  filename = filename || 'elo.' + extensionFor(mimeType);
+  filename = filename || 'jarvis.' + extensionFor(mimeType);
   var form = new FormData();
   form.append('file', new Blob([audio], { type: mimeType }), filename);
   form.append('model', process.env.GROQ_TRANSCRIBE_MODEL || DEFAULT_MODEL);

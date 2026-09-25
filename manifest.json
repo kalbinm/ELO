@@ -1,6 +1,6 @@
 {
-  "name": "ELO Voice Assistant",
-  "short_name": "ELO",
+  "name": "JARVIS Voice Assistant",
+  "short_name": "JARVIS",
   "start_url": "/",
   "display": "fullscreen",
   "orientation": "landscape",

@@ -4,20 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#070b12">
-  <meta name="description" content="ELO voice assistant">
+  <meta name="description" content="JARVIS voice assistant">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/style.css">
-  <title>ELO / Reactor Console</title>
+  <title>JARVIS / Reactor Console</title>
 </head>
 <body>
   <main id="app" class="app theme-blue">
-    <section id="normalView" class="normal-view" aria-label="ELO assistant">
+    <section id="normalView" class="normal-view" aria-label="JARVIS assistant">
       <header class="topbar">
-        <div class="brand"><span class="brand-mark">E</span><span class="brand-name">ELO</span><span class="brand-sub">PERSONAL INTELLIGENCE // 01</span></div>
+        <div class="brand"><span class="brand-mark">J</span><span class="brand-name">JARVIS</span><span class="brand-sub">PERSONAL INTELLIGENCE // 01</span></div>
         <div class="top-status"><span class="live-dot"></span><span id="systemState">SYSTEM ONLINE</span><span class="top-clock" id="topClock">--:--</span></div>
       </header>
 
-      <aside class="command-rail" aria-label="ELO controls">
+      <aside class="command-rail" aria-label="JARVIS controls">
         <div class="rail-label">COMMANDS</div>
         <button class="rail-button primary" id="listenButton" type="button"><span class="rail-icon">◉</span><span>LISTEN</span></button>
         <button class="rail-button" id="newsButton" type="button"><span class="rail-icon">≡</span><span>NEWS</span></button>
@@ -30,14 +30,14 @@
         <button class="theme-swatch swatch-light" data-theme="theme-light" type="button" aria-label="White and gold theme"></button>
       </aside>
 
-      <section class="reactor-stage" aria-label="ELO reactor">
+      <section class="reactor-stage" aria-label="JARVIS reactor">
         <div class="stage-kicker"><span>CORE LINK / A-01</span><span class="kicker-line"></span><span>READY</span></div>
         <div class="reactor-wrap">
           <div class="reactor-grid"></div>
           <div class="reactor-trace trace-one"></div><div class="reactor-trace trace-two"></div>
-          <button id="orb" class="orb idle" type="button" aria-label="Activate ELO voice assistant">
+          <button id="orb" class="orb idle" type="button" aria-label="Activate JARVIS voice assistant">
             <span class="orb-halo halo-one"></span><span class="orb-halo halo-two"></span><span class="orb-ring ring-outer"></span><span class="orb-ring ring-mid"></span><span class="orb-ring ring-inner"></span>
-            <span class="orb-core"><span class="core-glow"></span><span class="orb-name">ELO</span><span id="stateLabel" class="state-label">SAY “HEY ELO”</span></span>
+            <span class="orb-core"><span class="core-glow"></span><span class="orb-name">JARVIS</span><span id="stateLabel" class="state-label">SAY “HEY JARVIS”</span></span>
           </button>
           <div class="reactor-caption"><span class="caption-line"></span><span>NEURAL REACTOR</span><span class="caption-line"></span></div>
         </div>
@@ -45,10 +45,10 @@
         <div id="activity" class="activity"><span class="activity-dot"></span><span id="activityText">Wake word standby</span></div>
       </section>
 
-      <section class="console-panel" aria-label="ELO response console">
-        <div class="panel-heading"><span>TRANSMISSION</span><span class="panel-code">ELO.01</span></div>
+      <section class="console-panel" aria-label="JARVIS response console">
+        <div class="panel-heading"><span>TRANSMISSION</span><span class="panel-code">JARVIS.01</span></div>
         <div class="signal-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div id="answer" class="answer" aria-live="polite">I’m home. Say “Hey ELO” whenever you need me.</div>
+        <div id="answer" class="answer" aria-live="polite">I’m home. Say “Hey JARVIS” whenever you need me.</div>
         <form id="fallbackForm" class="fallback-form" hidden>
           <label class="visually-hidden" for="fallbackInput">Type a message</label>
           <input id="fallbackInput" type="text" maxlength="1000" autocomplete="off" placeholder="Type a command">
@@ -57,16 +57,16 @@
         <div class="telemetry">
           <div><span>CORE</span><strong>ACTIVE</strong></div><div><span>VOICE LINK</span><strong>READY</strong></div><div><span>WEB LINK</span><strong>AVAILABLE</strong></div>
         </div>
-        <div class="console-note">TRY: “Hey ELO, what is the time?”<br>“Hey ELO, search the web for…”</div>
+        <div class="console-note">TRY: “Hey JARVIS, what is the time?”<br>“Hey JARVIS, search the web for…”</div>
       </section>
 
-      <footer class="bottombar"><span>ELO // VOICE-OPERATED INTELLIGENCE</span><span>MIC <b>●</b> &nbsp; SECURE LINK <b>●</b></span></footer>
+      <footer class="bottombar"><span>JARVIS // VOICE-OPERATED INTELLIGENCE</span><span>MIC <b>●</b> &nbsp; SECURE LINK <b>●</b></span></footer>
     </section>
 
     <section id="ambientView" class="ambient-view" hidden aria-label="Ambient display">
-      <div class="ambient-top"><span>ELO / AMBIENT</span><span id="ambientDate"></span></div>
+      <div class="ambient-top"><span>JARVIS / AMBIENT</span><span id="ambientDate"></span></div>
       <div class="ambient-center"><div id="ambientTime" class="ambient-time">--:--</div><div id="weather" class="weather">Weather unavailable</div></div>
-      <div class="ambient-orb" aria-hidden="true"><span>ELO</span></div>
+      <div class="ambient-orb" aria-hidden="true"><span>JARVIS</span></div>
     </section>
   </main>
   <script src="/app.js"></script>
