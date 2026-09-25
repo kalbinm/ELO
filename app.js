@@ -3,6 +3,7 @@
   var FALLBACK_CITY = { name: 'Tirana', lat: 41.3275, lon: 19.8187 };
   var orb = document.getElementById('orb'), label = document.getElementById('stateLabel'), status = document.getElementById('status');
   var answer = document.getElementById('answer'), activity = document.getElementById('activity'), activityText = document.getElementById('activityText');
+  var app = document.getElementById('app'), systemState = document.getElementById('systemState'), topClock = document.getElementById('topClock');
   var form = document.getElementById('fallbackForm'), input = document.getElementById('fallbackInput'), normalView = document.getElementById('normalView'), ambientView = document.getElementById('ambientView');
   var recognition = null, recognitionRunning = false, armed = false, commandMode = false, transcript = '', commandTimer = null;
   var messages = [], idleTimer = null, weatherTimer = null, clockTimer = null, wakeLock = null;
@@ -10,6 +11,7 @@
   function setState(state, text) { orb.className = 'orb ' + state; label.textContent = text; }
   function setStatus(text) { status.textContent = text || ''; }
   function setActivity(text, active) { activityText.textContent = text; activity.className = active ? 'activity active' : 'activity'; }
+  function updateTopClock() { var now = new Date(); topClock.textContent = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2); }
   function showFallback(message) { form.hidden = false; if (message) setStatus(message); }
   function stopSpeech() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
   function resetIdle() { if (idleTimer) clearTimeout(idleTimer); if (!ambientView.hidden) leaveAmbient(); idleTimer = setTimeout(enterAmbient, 60000); }
@@ -18,7 +20,7 @@
   function setupRecognition() {
     if (!SpeechRecognition) { showFallback('Voice input is unavailable here. Type below instead.'); return; }
     recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
-    recognition.onstart = function () { recognitionRunning = true; setStatus('Microphone on — say “Hey ELO”'); setState('listening', armed ? 'Say “Hey ELO”' : 'Listening...'); setActivity('Wake word standby', true); };
+    recognition.onstart = function () { recognitionRunning = true; systemState.textContent = 'VOICE LINK ACTIVE'; setStatus('Microphone on — say “Hey ELO”'); setState('listening', armed ? 'Say “Hey ELO”' : 'Listening...'); setActivity('Wake word standby', true); };
     recognition.onresult = function (event) {
       var text = '', i, result; for (i = event.resultIndex; i < event.results.length; i++) { result = event.results[i]; text += result[0].transcript; }
       var spoken = normalize(text), wake = wakeCommand(spoken); transcript = text;
@@ -26,7 +28,7 @@
       else if (commandMode && spoken) { if (commandTimer) clearTimeout(commandTimer); finishCommand(spoken); }
     };
     recognition.onnomatch = function () { setStatus('I heard something, but not the wake word. Try “Hey ELO” again.'); };
-    recognition.onerror = function (event) { recognitionRunning = false; if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { armed = false; showFallback('Allow microphone access once, then ELO can listen hands-free.'); setActivity('Microphone permission needed', false); } else setStatus('I lost the signal. I’ll try again.'); };
+    recognition.onerror = function (event) { recognitionRunning = false; systemState.textContent = 'VOICE LINK CHECK'; if (event.error === 'not-allowed' || event.error === 'service-not-allowed') { armed = false; showFallback('Allow microphone access once, then ELO can listen hands-free.'); setActivity('Microphone permission needed', false); } else setStatus('I lost the signal. I’ll try again.'); };
     recognition.onend = function () { recognitionRunning = false; if (armed && !document.hidden && !(window.speechSynthesis && window.speechSynthesis.speaking)) setTimeout(startListening, 450); };
   }
   function startListening() { if (!recognition || recognitionRunning || document.hidden) return; try { recognition.start(); } catch (e) {} }
@@ -51,7 +53,13 @@
   function weatherLabel(code) { if (code === 0) return 'Clear'; if (code < 4) return 'Partly cloudy'; if (code < 70) return 'Cloudy'; if (code < 80) return 'Rain'; if (code < 90) return 'Showers'; return 'Storm'; }
   function requestWakeLock() { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request('screen').then(function (lock) { wakeLock = lock; }).catch(function () {}); }
   orb.addEventListener('click', function () { resetIdle(); if (window.speechSynthesis && window.speechSynthesis.speaking) { stopSpeech(); setState('listening', 'Say “Hey ELO”'); return; } armListening(); });
+  document.getElementById('listenButton').addEventListener('click', function () { resetIdle(); armListening(); });
+  document.getElementById('newsButton').addEventListener('click', function () { resetIdle(); finishCommand('what is the latest news'); });
+  document.getElementById('searchButton').addEventListener('click', function () { resetIdle(); showFallback('Type a search below, then press SEND.'); input.focus(); });
+  document.getElementById('ambientButton').addEventListener('click', function () { enterAmbient(); });
+  Array.prototype.forEach.call(document.querySelectorAll('.theme-swatch'), function (button) { button.addEventListener('click', function () { app.className = 'app ' + button.getAttribute('data-theme'); Array.prototype.forEach.call(document.querySelectorAll('.theme-swatch'), function (item) { item.classList.remove('active'); }); button.classList.add('active'); window.localStorage.setItem('elo_theme', button.getAttribute('data-theme')); }); });
   document.addEventListener('pointerdown', function () { if (!armed && recognition) armListening(); }, { once: true });
   form.addEventListener('submit', submitFallback); document.addEventListener('touchstart', function () { if (!ambientView.hidden) leaveAmbient(); resetIdle(); }, { passive: true }); document.addEventListener('click', resetIdle); document.addEventListener('visibilitychange', function () { if (document.hidden) { if (idleTimer) clearTimeout(idleTimer); } else { resetIdle(); if (armed) startListening(); } });
-  window.addEventListener('beforeunload', stopSpeech); setupRecognition(); resetIdle(); setStatus('Listening for “Hey ELO”...'); setTimeout(function () { if (recognition) armListening(); }, 300);
+  var savedTheme = window.localStorage.getItem('elo_theme'); if (savedTheme) { app.className = 'app ' + savedTheme; var savedSwatch = document.querySelector('[data-theme="' + savedTheme + '"]'); if (savedSwatch) savedSwatch.classList.add('active'); }
+  window.addEventListener('beforeunload', stopSpeech); setupRecognition(); resetIdle(); updateTopClock(); setInterval(updateTopClock, 30000); setStatus('Listening for “Hey ELO”...'); setTimeout(function () { if (recognition) armListening(); }, 300);
 }());
